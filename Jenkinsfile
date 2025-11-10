@@ -39,6 +39,7 @@ pipeline {
                 echo 'Running unit tests...'
                 script {
                     bat '''
+                        set PYTHONPATH=%CD%
                         pytest tests/ -v --junitxml=test-results.xml --cov=app --cov-report=html --cov-report=term
                     '''
                 }
@@ -47,12 +48,8 @@ pipeline {
                 always {
                     // Publish test results
                     junit 'test-results.xml'
-                    // Publish coverage report
-                    publishHTML([
-                        reportDir: 'htmlcov',
-                        reportFiles: 'index.html',
-                        reportName: 'Coverage Report'
-                    ])
+                    // Archive coverage report
+                    archiveArtifacts artifacts: 'htmlcov/**', allowEmptyArchive: true
                 }
             }
         }
