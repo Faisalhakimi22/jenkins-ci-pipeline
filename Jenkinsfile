@@ -14,7 +14,7 @@ pipeline {
                 echo 'Setting up Python environment...'
                 script {
                     // Install Python dependencies
-                    sh '''
+                    bat '''
                         python -m pip install --upgrade pip
                         pip install -r requirements.txt
                     '''
@@ -26,8 +26,8 @@ pipeline {
             steps {
                 echo 'Building application...'
                 script {
-                    sh '''
-                        echo "Build successful - Dependencies installed"
+                    bat '''
+                        echo Build successful - Dependencies installed
                         python -c "import flask; print('Flask version:', flask.__version__)"
                     '''
                 }
@@ -38,7 +38,7 @@ pipeline {
             steps {
                 echo 'Running unit tests...'
                 script {
-                    sh '''
+                    bat '''
                         pytest tests/ -v --junitxml=test-results.xml --cov=app --cov-report=html --cov-report=term
                     '''
                 }
@@ -61,11 +61,11 @@ pipeline {
             steps {
                 echo 'Generating test reports...'
                 script {
-                    sh '''
-                        echo "=== Test Summary ===" > test-summary.txt
-                        echo "Tests completed successfully" >> test-summary.txt
-                        echo "Coverage report generated in htmlcov/" >> test-summary.txt
-                        cat test-summary.txt
+                    bat '''
+                        echo === Test Summary === > test-summary.txt
+                        echo Tests completed successfully >> test-summary.txt
+                        echo Coverage report generated in htmlcov/ >> test-summary.txt
+                        type test-summary.txt
                     '''
                 }
                 archiveArtifacts artifacts: 'test-summary.txt', allowEmptyArchive: true
