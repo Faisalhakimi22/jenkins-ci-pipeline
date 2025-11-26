@@ -68,6 +68,27 @@ pipeline {
                 archiveArtifacts artifacts: 'test-summary.txt', allowEmptyArchive: true
             }
         }
+
+        stage('Deploy') {
+            steps {
+                echo 'Deploying to local server...'
+                script {
+                    bat '''
+                        echo Stopping any existing instance on port 5000...
+                        for /f "tokens=5" %%a in ('netstat -aon ^| find ":5000" ^| find "LISTENING"') do taskkill /f /pid %%a || echo No process found on port 5000
+                        
+                        echo Starting application...
+                        start /B python app.py > app.log 2>&1
+                        
+                        echo Waiting for application to start...
+                        timeout /t 10 /nobreak
+                        
+                        echo Verifying deployment...
+                        python -c "import urllib.request; print('Health Check Status:', urllib.request.urlopen('http://localhost:5000/').getcode())"
+                    '''
+                }
+            }
+        }
     }
     
     post {
