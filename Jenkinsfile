@@ -45,7 +45,10 @@ pipeline {
             }
             post {
                 always {
+                    // Publish test results
                     junit 'test-results.xml'
+                    
+                    // Archive coverage HTML report
                     archiveArtifacts artifacts: 'htmlcov/**', allowEmptyArchive: true
                 }
             }
@@ -63,6 +66,13 @@ pipeline {
                     '''
                 }
                 archiveArtifacts artifacts: 'test-summary.txt', allowEmptyArchive: true
+                
+                // Publish HTML coverage report in Jenkins
+                publishHTML(target: [
+                    reportDir: 'htmlcov',
+                    reportFiles: 'index.html',
+                    reportName: 'Coverage Report'
+                ])
             }
         }
 
@@ -78,7 +88,7 @@ pipeline {
                         start /B python app.py > app.log 2>&1
                         
                         echo Waiting for application to start...
-                        timeout /t 10 /nobreak
+                        ping 127.0.0.1 -n 10 >nul
                         
                         echo Verifying deployment...
                         python -c "import urllib.request; print('Health Check Status:', urllib.request.urlopen('http://localhost:5000/').getcode())"
