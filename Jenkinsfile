@@ -13,7 +13,6 @@ pipeline {
             steps {
                 echo 'Setting up Python environment...'
                 script {
-                    // Install Python dependencies
                     bat '''
                         python -m pip install --upgrade pip
                         pip install -r requirements.txt
@@ -46,9 +45,7 @@ pipeline {
             }
             post {
                 always {
-                    // Publish test results
                     junit 'test-results.xml'
-                    // Archive coverage report
                     archiveArtifacts artifacts: 'htmlcov/**', allowEmptyArchive: true
                 }
             }
@@ -103,4 +100,3 @@ pipeline {
         }
     }
 }
-
