@@ -30,7 +30,6 @@ pipeline {
             steps {
                 echo 'Setting up Python environment...'
                 script {
-                    // Cache dependencies to speed up builds
                     bat '''
                         python -m pip install --upgrade pip
                         pip install -r requirements.txt --cache-dir .pip-cache
@@ -46,7 +45,7 @@ pipeline {
                     bat '''
                         echo Build started at %DATE% %TIME%
                         echo Build successful - Dependencies installed
-                        python -c "import flask; print('Flask version:', flask.__version__)"
+                        python -c "import importlib.metadata; print('Flask version:', importlib.metadata.version('flask'))"
                         
                         REM Generate build version
                         echo %BUILD_NUMBER% > build-version.txt
@@ -112,15 +111,15 @@ pipeline {
                             taskkill /F /PID %%a 2>nul
                         )
                         
-                        REM Wait for port to be released
-                        timeout /t 2 /nobreak >nul
+                        REM Wait for port to be released (using ping instead of timeout)
+                        ping 127.0.0.1 -n 3 >nul
                         
                         REM Start new instance
                         echo Starting application build %BUILD_NUMBER%...
                         start /B python app.py > app.log 2>&1
                         
-                        REM Wait for startup
-                        timeout /t 5 /nobreak >nul
+                        REM Wait for startup (using ping instead of timeout)
+                        ping 127.0.0.1 -n 6 >nul
                         
                         REM Health check with retry
                         echo Performing health check...
@@ -146,12 +145,11 @@ pipeline {
             archiveArtifacts artifacts: 'app.log, deployment.log', allowEmptyArchive: true
         }
         success {
-            echo '✓ Pipeline succeeded! Application deployed on port %APP_PORT%'
+            echo "✓ Pipeline succeeded! Application deployed on port ${env.APP_PORT}"
         }
         failure {
             echo '✗ Pipeline failed! Check logs for details'
             script {
-                // Cleanup on failure
                 bat '''
                     for /f "tokens=5" %%a in ('netstat -ano ^| findstr :%APP_PORT% ^| findstr LISTENING') do taskkill /F /PID %%a 2>nul
                 '''
