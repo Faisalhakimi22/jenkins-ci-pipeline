@@ -1,7 +1,6 @@
 """
 Unit tests for Calculator API
 """
-
 import pytest
 from app import app
 
@@ -11,6 +10,8 @@ def client():
     app.config['TESTING'] = True
     with app.test_client() as client:
         yield client
+
+# ==================== EXISTING TESTS ====================
 
 def test_home_endpoint(client):
     """Test home endpoint"""
@@ -73,3 +74,36 @@ def test_missing_parameters(client):
     data = response.get_json()
     assert data['result'] == 0
 
+# ==================== NEW TESTS FOR 100% COVERAGE ====================
+
+def test_add_with_none_values(client):
+    """Test add with None values to trigger TypeError"""
+    response = client.post('/add', json={'a': None, 'b': 5})
+    assert response.status_code == 400
+    data = response.get_json()
+    assert 'error' in data
+    assert 'Invalid input' in data['error']
+
+def test_subtract_with_invalid_string(client):
+    """Test subtract with invalid string to trigger ValueError"""
+    response = client.post('/subtract', json={'a': 'abc', 'b': 10})
+    assert response.status_code == 400
+    data = response.get_json()
+    assert 'error' in data
+    assert 'Invalid input' in data['error']
+
+def test_multiply_with_none_type(client):
+    """Test multiply with None to trigger TypeError"""
+    response = client.post('/multiply', json={'a': 5, 'b': None})
+    assert response.status_code == 400
+    data = response.get_json()
+    assert 'error' in data
+    assert 'Invalid input' in data['error']
+
+def test_divide_with_invalid_type(client):
+    """Test divide with invalid type to trigger TypeError/ValueError"""
+    response = client.post('/divide', json={'a': 'text', 'b': 5})
+    assert response.status_code == 400
+    data = response.get_json()
+    assert 'error' in data
+    assert 'Invalid input' in data['error']
