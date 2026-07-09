@@ -1,10 +1,10 @@
-# Calculator API - CI/CD Pipeline Project
+# Jenkins CI/CD Pipeline Demo
 
-A simple RESTful Calculator API built with Flask, configured with Jenkins CI/CD pipeline.
+**What this demonstrates:** a working Jenkins pipeline (checkout → install → build → test → coverage report) wired up end-to-end against a real Flask app. The app itself (a calculator REST API) is intentionally minimal — it's the pipeline configuration, not the API, that's the point of this repo.
 
 ## Project Overview
 
-This project demonstrates a complete CI/CD setup using Jenkins. The application provides basic mathematical operations through a REST API.
+This project demonstrates a complete CI/CD setup using Jenkins: automated checkout, dependency install, build verification, unit testing with pytest, and coverage reporting on every change. The application provides basic mathematical operations through a REST API as a deliberately simple target to build the pipeline around.
 
 ## Features
 
